@@ -8,7 +8,7 @@ services:
     environment:
       - PORT:8095
     ports:
-      - "8090:8095"
+      - "8095:8095"
     networks: 
       - arbackend
     deploy:
