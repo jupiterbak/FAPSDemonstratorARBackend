@@ -14,9 +14,6 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-      placement:
-        constraints:
-        - node.hostname == ontologie
 
 networks:
   arbackend:
