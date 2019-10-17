@@ -6,9 +6,9 @@ services:
     restart: always
     image: fapsdemonstratorarbackend_back:latest
     environment:
-      - PORT:8090
+      - PORT:8095
     ports:
-      - "8090:8090"
+      - "8090:8095"
     networks: 
       - arbackend
     deploy:
@@ -17,7 +17,6 @@ services:
       placement:
         constraints:
         - node.hostname == ontologie
-
 
 networks:
   arbackend:
