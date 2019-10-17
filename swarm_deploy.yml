@@ -4,7 +4,7 @@ services:
   arbackend:
     build: .
     restart: always
-    image: fapsdemonstratorarbackend_back:latest
+    image: fapsdemonstratorarbackend_arbackend:latest
     environment:
       - PORT:8095
     ports:
