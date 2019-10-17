@@ -9,6 +9,6 @@ RUN npm install --save amqplib
 COPY . .
 
 USER node
-EXPOSE 8090
+EXPOSE 8095
 
 CMD ["npm", "start"]
