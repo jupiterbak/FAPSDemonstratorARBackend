@@ -69,7 +69,7 @@ amqp.connect("amqp://esys:esys@cloud.faps.uni-erlangen.de",function(err, conn) {
         amqp_ch = ch;
         amqp_ch.assertExchange("FAPS_DEMONSTRATOR_LiveStreamData_MachineData", 'fanout', {durable: false});
         // test client
-        amqp_ch.assertQueue('FAPS_DEMONSTRATOR_LiveStreamData_MachineData_ARBackend', {exclusive: false}, function(err, q) {
+        amqp_ch.assertQueue('FAPS_DEMONSTRATOR_LiveStreamData_MachineData_ARBackend', {exclusive: false, durable: false, autoDelete:true}, function(err, q) {
             if (err){
                 logger.error('AMQP Queue Assertion Error: ' + err.toString());
             }else{
