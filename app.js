@@ -103,25 +103,25 @@ app.get('/', function (req, res) {
 });
 
 webserver.listen(port, function () {
-    logger.info('SCREEN app listening on port: ' + port);
+    logger.info('ARBACKEND app listening on port: ' + port);
 });
 
 process.on('uncaughtException', function(err) {
-    logger.error('SCREEN app Uncaught Exception:' + err.stack);
-    logger.error('SCREEN app server is on exit with code: ' + 1);
+    logger.error('ARBACKEND app Uncaught Exception:' + err.stack);
+    logger.error('ARBACKEND app server is on exit with code: ' + 1);
     webserver.close();
     process.exit(1);
 });
 
 // Stop the platform if the user request it
 process.on('SIGINT', function() {
-    logger.error('SCREEN app is on exit with code: ' + 0);
+    logger.error('ARBACKEND app is on exit with code: ' + 0);
     webserver.close();
     process.exit(0);
 });
 
 process.on('exit', (code) => {
-    logger.error('SCREEN app is on exit with code: ' + code);
+    logger.error('ARBACKEND app is on exit with code: ' + code);
     webserver.close();
     process.exit(0);
 });
