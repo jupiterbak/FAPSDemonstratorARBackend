@@ -4,7 +4,7 @@ services:
   back:
     build: .
     restart: always
-    image: fapsdemonstratorarbackend_service_1:latest
+    image: fapsdemonstratorarbackend_back:latest
     environment:
       - PORT:8090
     ports:
