@@ -1,7 +1,7 @@
 version: "2.0"
 
 services:
-  back:
+  arbackend:
     build: .
     restart: always
     environment:
@@ -9,7 +9,7 @@ services:
     ports:
       - "8095:8095"
     networks: 
-      - arbackend
+      - backend
 
 networks:
-  arbackend:
+  backend:

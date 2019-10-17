@@ -1,7 +1,7 @@
 version: "3.3"
 
 services:
-  back:
+  arbackend:
     build: .
     restart: always
     image: fapsdemonstratorarbackend_back:latest
@@ -10,12 +10,12 @@ services:
     ports:
       - "8095:8095"
     networks: 
-      - arbackend
+      - backend
     deploy:
       mode: replicated
       replicas: 1
 
 networks:
-  arbackend:
+  backend:
     driver: "overlay"
     attachable: true
