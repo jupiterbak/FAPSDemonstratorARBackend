@@ -3,8 +3,8 @@
 /*#####################################################################################*/
 var http = require('http');
 var express = require('express'),
-	app = module.exports.app = express();
-var bodyParser     =        require("body-parser");
+    app = module.exports.app = express();
+var bodyParser = require("body-parser");
 var webserver = http.createServer(app);
 var io = require('socket.io').listen(webserver);
 var amqp = require('amqplib/callback_api');
@@ -17,6 +17,7 @@ const winston = require('winston');
 const logger = winston.createLogger({
     transports: [new winston.transports.Console()],
     format: winston.format.combine(
+        winston.format.splat(),
         winston.format.timestamp({
             format: 'YYYY-MM-DD HH:mm:ss'
         }),
@@ -33,18 +34,18 @@ const logger = winston.createLogger({
 /*#####################################################################################*/
 
 //SocketIO handler
-io.on('connection', function (socket) {
-	logger.info("Socket IO Connection");
-	socket.on('disconnect', function(){
-		logger.info("Socket IO Disconnection");
-	});
+io.on('connection', function(socket) {
+    logger.info("Socket IO Connection");
+    socket.on('disconnect', function() {
+        logger.info("Socket IO Disconnection");
+    });
 });
 
 /*#####################################################################################*/
 /* AMQP CLIENT
 /*#####################################################################################*/
 // connect to brocker
-amqp.connect("amqp://esys:esys@cloud.faps.uni-erlangen.de",function(err, conn) {
+amqp.connect("amqp://esys:esys@cloud.faps.uni-erlangen.de", function(err, conn) {
     if (err != null) {
         logger.error('AMQP Connection Error: ' + err.toString());
         return;
@@ -67,21 +68,49 @@ amqp.connect("amqp://esys:esys@cloud.faps.uni-erlangen.de",function(err, conn) {
         }
 
         amqp_ch = ch;
-        amqp_ch.assertExchange("FAPS_DEMONSTRATOR_LiveStreamData_MachineData", 'fanout', {durable: false});
-        // test client
-        amqp_ch.assertQueue('FAPS_DEMONSTRATOR_LiveStreamData_MachineData_ARBackend', {exclusive: false, durable: false, autoDelete:true}, function(err, q) {
-            if (err){
+        amqp_ch.assertExchange("FAPS_DEMONSTRATOR_LiveStreamData_MachineData", 'fanout', { durable: false });
+        amqp_ch.assertExchange("FAPS_DEMONSTRATOR_OrderManagement_Orders", 'fanout', { durable: false });
+        amqp_ch.assertExchange("FAPS_DEMONSTRATOR_LiveStreamData_ConveyorData", 'fanout', { durable: false });
+
+        amqp_ch.assertQueue('FAPS_DEMONSTRATOR_LiveStreamData_MachineData_ARBackend', { exclusive: false, durable: false, autoDelete: true }, function(err, q) {
+            if (err) {
                 logger.error('AMQP Queue Assertion Error: ' + err.toString());
-            }else{
-                //console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q.queue);
+            } else {
+                logger.info(" [*] Waiting for messages in %s. To exit press CTRL+C", q.queue);
                 ch.bindQueue(q.queue, "FAPS_DEMONSTRATOR_LiveStreamData_MachineData", '');
 
                 ch.consume(q.queue, function(msg) {
-                    //console.log(" [x] %s", msg.content.toString());
+                    logger.info(" [x] %s", msg.content.toString());
                     _obj = JSON.parse(msg.content.toString());
-                    io.emit('AMQPMachineData', JSON.stringify(_obj.value.data));                    
+                    io.emit('AMQPMachineData', JSON.stringify(_obj.value.data));
 
-                }, {noAck: true});
+                }, { noAck: true });
+            }
+        });
+
+        amqp_ch.assertQueue('FAPS_DEMONSTRATOR_LiveStreamData_ConveyorData_ARBackend', { exclusive: false, durable: false, autoDelete: true }, function(err, q) {
+            if (err) {
+                logger.error('AMQP Queue Assertion Error: ' + err.toString());
+            } else {
+                logger.info(" [*] Waiting for messages in %s. To exit press CTRL+C", q.queue);
+                ch.bindQueue(q.queue, "FAPS_DEMONSTRATOR_LiveStreamData_ConveyorData", '');
+                ch.consume(q.queue, function(msg) {
+                    var _obj = JSON.parse(msg.content.toString());
+                    io.emit('ConveyorData', JSON.stringify(_obj.value.DB33));
+                }, { noAck: true });
+            }
+        });
+
+        amqp_ch.assertQueue('FAPS_DEMONSTRATOR_OrderManagement_Orders_ARBackend', { exclusive: false, durable: false, autoDelete: true }, function(err, q) {
+            if (err) {
+                logger.info('AMQP Queue Assertion Error: ' + err.toString());
+            } else {
+                logger.info(" [*] Waiting for messages in %s. To exit press CTRL+C", q.queue);
+                ch.bindQueue(q.queue, "FAPS_DEMONSTRATOR_OrderManagement_Orders", '');
+                ch.consume(q.queue, function(msg) {
+                    var _obj = JSON.parse(msg.content.toString());
+                    io.emit('NewOrder', JSON.stringify(_obj));
+                }, { noAck: true });
             }
         });
     });
@@ -95,14 +124,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // main application
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({
         state: 'OK'
     }));
 });
 
-webserver.listen(port, function () {
+webserver.listen(port, function() {
     logger.info('ARBACKEND app listening on port: ' + port);
 });
 
@@ -125,4 +154,3 @@ process.on('exit', (code) => {
     webserver.close();
     process.exit(0);
 });
-
