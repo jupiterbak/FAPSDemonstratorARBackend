@@ -80,7 +80,7 @@ amqp.connect("amqp://esys:esys@cloud.faps.uni-erlangen.de", function(err, conn) 
                 ch.bindQueue(q.queue, "FAPS_DEMONSTRATOR_LiveStreamData_MachineData", '');
 
                 ch.consume(q.queue, function(msg) {
-                    logger.info(" [x] %s", msg.content.toString());
+                    // logger.info(" [x] %s", msg.content.toString());
                     _obj = JSON.parse(msg.content.toString());
                     io.emit('AMQPMachineData', JSON.stringify(_obj.value.data));
 
